@@ -28,7 +28,8 @@ public class HelloProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        filer = processingEnv.getFiler(); // for creating file
+        // 代码文件 输出到 哪
+        filer = processingEnv.getFiler();
     }
 
     @Override
@@ -40,10 +41,11 @@ public class HelloProcessor extends AbstractProcessor {
             }
         }
 
-        // Process each @BindView element.
+        // 拿到 每个类，要生成的 代码块；
         Map<TypeElement, List<CodeBlock.Builder>> builderMap = findAndParseTargets(env);
         for (TypeElement typeElement : builderMap.keySet()) {
             List<CodeBlock.Builder> codeList = builderMap.get(typeElement);
+            // 去生成对应的 类文件；
             ViewBindHelper.writeBindView(typeElement, codeList, filer);
         }
         return true;
@@ -52,10 +54,12 @@ public class HelloProcessor extends AbstractProcessor {
     private Map<TypeElement, List<CodeBlock.Builder>> findAndParseTargets(RoundEnvironment env) {
         Map<TypeElement, List<CodeBlock.Builder>> builderMap = new HashMap<>();
 
+        // 遍历带 对应注解的 元素，具体来看实际也就是 某个View对象
         for (Element element : env.getElementsAnnotatedWith(BindView.class)) {
             ViewBindHelper.parseBindView(element, builderMap);
         }
 
+        // 遍历带 对应注解的 元素，具体来看实际也就是 某个方法
         for (Element element : env.getElementsAnnotatedWith(OnClick.class)) {
             ViewBindHelper.parseListenerView(element, builderMap);
         }
